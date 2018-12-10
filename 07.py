@@ -52,4 +52,47 @@ print "".join(seq)
 #                                       #
 #########################################
 
-#TOPOLOGICAL SORT TODO
+from collections import defaultdict, deque
+
+edges = defaultdict(list)
+d_in = defaultdict(int)
+queue = []
+time = 0
+current_nodes = []
+workers = 5
+
+def parse_input_for_second():
+    for line in open('07_input'):
+        words = line.split()
+        x = words[1]
+        y = words[7]
+        edges[x].append(y)
+        d_in[y] += 1
+    #sort..
+    for k in edges:
+        edges[k] = sorted(edges[k])
+
+def start_work():
+    global queue
+    while len(current_nodes) < workers and queue:
+        x = min(queue)
+        queue = [y for y in queue if y != x]
+        current_nodes.append((time + 61 + ord(x) - ord('A'), x))
+
+parse_input_for_second()
+
+for k in edges:
+    if d_in[k] == 0:
+        queue.append(k)
+start_work()
+
+while current_nodes or queue:
+    time, x = min(current_nodes)
+    current_nodes = [y for y in current_nodes if y != (time, x)]
+    for y in edges[x]:
+        d_in[y] -= 1
+        if d_in[y] == 0:
+            queue.append(y)
+    start_work()
+
+print time
